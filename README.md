@@ -10,7 +10,7 @@ A high-performance, scalable real-time analytics streaming system. This project 
 
 ---
 
-## 🚀 Features
+## Features
 
 - **Real-Time Ingestion**: Handles high-frequency event streams using Redis Streams.
 - **Sliding Window Analysis**: Processes metrics (event count, average value, total volume) within a configurable time window (e.g., 30s).
@@ -22,7 +22,7 @@ A high-performance, scalable real-time analytics streaming system. This project 
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -37,7 +37,7 @@ graph TD
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **Go**: Core logic and concurrency management.
@@ -54,7 +54,7 @@ graph TD
 
 ---
 
-## 🏁 Getting Started
+## Getting Started
 
 ### Prerequisites
 - [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
@@ -92,7 +92,7 @@ npm run dev
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Backend (`backend/.env`)
 | Variable | Description | Default |
@@ -105,7 +105,7 @@ npm run dev
 
 ---
 
-## 📊 Dashboard Overview
+## Dashboard Overview
 
 - **Event Rate**: Real-time events per second (eps).
 - **Volume**: Cumulative monetary or value volume in the current window.
@@ -114,5 +114,5 @@ npm run dev
 
 ---
 
-## 📄 License
+## License
 This project is licensed under the MIT License - see the LICENSE file for details.
