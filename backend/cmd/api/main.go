@@ -38,20 +38,28 @@ func main() {
 	pool.Start(ctx)
 
 	// 4. Start Event Generator (Simulates High-Frequency Ingestion)
-	go func() {
-		types := []string{"order_created", "user_login", "page_view", "payment_success"}
-		for {
-			event := domain.Event{
-				ID:        fmt.Sprintf("evt-%d", time.Now().UnixNano()),
-				Type:      types[rand.Intn(len(types))],
-				UserID:    fmt.Sprintf("user-%d", rand.Intn(100)),
-				Value:     rand.Float64() * 100,
-				Timestamp: time.Now(),
+	const numGenerators = 5
+	const targetEPS = 1500 // Target 1500 events per second
+	interval := time.Second / time.Duration(targetEPS/numGenerators)
+
+	for i := 0; i < numGenerators; i++ {
+		go func(genID int) {
+			types := []string{"order_created", "user_login", "page_view", "payment_success"}
+			ticker := time.NewTicker(interval)
+			defer ticker.Stop()
+
+			for range ticker.C {
+				event := domain.Event{
+					ID:        fmt.Sprintf("evt-%d-%d", genID, time.Now().UnixNano()),
+					Type:      types[rand.Intn(len(types))],
+					UserID:    fmt.Sprintf("user-%d", rand.Intn(100)),
+					Value:     rand.Float64() * 100,
+					Timestamp: time.Now(),
+				}
+				stream.Publish(ctx, event)
 			}
-			stream.Publish(ctx, event)
-			time.Sleep(time.Duration(rand.Intn(500)) * time.Millisecond)
-		}
-	}()
+		}(i)
+	}
 
 	// 5. Start Metric Broadcaster (Pushes data to Dashboard via WS)
 	go func() {
