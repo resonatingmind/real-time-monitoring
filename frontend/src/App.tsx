@@ -17,7 +17,9 @@ const Dashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [current, setCurrent] = useState<Metric | null>(null);
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
+  const [logs, setLogs] = useState<{ id: number; message: string; time: string }[]>([]);
   const ws = useRef<WebSocket | null>(null);
+  const logContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     connect();
@@ -35,8 +37,13 @@ const Dashboard: React.FC = () => {
     
     ws.current.onmessage = (event) => {
       const data: Metric = JSON.parse(event.data);
+      const time = new Date().toLocaleTimeString();
       setCurrent(data);
-      setMetrics(prev => [...prev.slice(-20), { ...data, timestamp: new Date().toLocaleTimeString() }]);
+      setMetrics(prev => [...prev.slice(-20), { ...data, timestamp: time }]);
+      setLogs(prev => [
+        { id: Date.now(), message: `INGEST: ${data.event_count} events | AVG: ${data.avg_value.toFixed(2)} | VOL: ${data.total_value.toFixed(0)}`, time },
+        ...prev.slice(0, 49)
+      ]);
     };
   };
 
@@ -122,6 +129,29 @@ const Dashboard: React.FC = () => {
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+      </div>
+      
+      {/* Logging Section */}
+      <div className="mt-20">
+        <h3 className="text-xs font-light mb-8 text-gray-500 uppercase tracking-[0.4em] flex items-center gap-3">
+          <div className="w-8 h-[1px] bg-white/10" />
+          System Logs
+        </h3>
+        <div 
+          className="bg-[#0a0a0a] border border-white/5 p-8 rounded-sm h-64 overflow-y-auto font-mono text-[11px] leading-relaxed scrollbar-hide"
+          ref={logContainerRef}
+        >
+          {logs.map((log) => (
+            <div key={log.id} className="flex gap-4 py-1 border-b border-white/[0.02] last:border-0 hover:bg-white/[0.01] transition-colors">
+              <span className="text-gray-600 shrink-0">{log.time}</span>
+              <span className="text-gray-400 shrink-0">DEBUG</span>
+              <span className="text-gray-300 break-all">{log.message}</span>
+            </div>
+          ))}
+          {logs.length === 0 && (
+            <div className="text-gray-700 italic">Waiting for telemetry stream...</div>
+          )}
+        </div>
       </div>
     </div>
   </div>
